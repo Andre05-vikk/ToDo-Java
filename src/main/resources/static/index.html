@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo Application</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 ToDo Application</h1>
+            <p class="subtitle">Halda oma ülesandeid lihtsalt ja tõhusalt</p>
+        </header>
+
+        <main>
+            <!-- Add Task Section -->
+            <section class="add-task-section">
+                <h2>✨ Lisa Uus Ülesanne</h2>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <input type="text" id="taskTitle" placeholder="Ülesande pealkiri *" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="taskDescription" placeholder="Kirjeldus (valikuline)" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskPriority">Prioriteet:</label>
+                            <select id="taskPriority">
+                                <option value="LOW">Madal</option>
+                                <option value="MEDIUM" selected>Keskmine</option>
+                                <option value="HIGH">Kõrge</option>
+                                <option value="CRITICAL">Kriitiline</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDueDate">Tähtaeg:</label>
+                            <input type="datetime-local" id="taskDueDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskCategory">Kategooria:</label>
+                            <select id="taskCategory">
+                                <option value="">Ilma kategooriata</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Lisa Ülesanne</button>
+                </form>
+            </section>
+
+            <!-- Filter Section -->
+            <section class="filter-section">
+                <h2>🔍 Filtreeri Ülesandeid</h2>
+                <div class="filters">
+                    <button class="btn btn-filter active" data-filter="all">Kõik</button>
+                    <button class="btn btn-filter" data-filter="PENDING">Ootel</button>
+                    <button class="btn btn-filter" data-filter="IN_PROGRESS">Pooleli</button>
+                    <button class="btn btn-filter" data-filter="COMPLETED">Tehtud</button>
+                    <button class="btn btn-filter" data-filter="starred">⭐ Tärniga</button>
+                    <button class="btn btn-filter" data-filter="overdue">⏰ Hiljaks jäänud</button>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <h3>Kokku</h3>
+                    <p class="stat-number" id="totalTasks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Ootel</h3>
+                    <p class="stat-number" id="pendingTasks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pooleli</h3>
+                    <p class="stat-number" id="inProgressTasks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Tehtud</h3>
+                    <p class="stat-number" id="completedTasks">0</p>
+                </div>
+            </section>
+
+            <!-- Tasks List Section -->
+            <section class="tasks-section">
+                <h2>📝 Ülesanded</h2>
+                <div id="tasksList" class="tasks-list">
+                    <!-- Tasks will be rendered here dynamically -->
+                </div>
+            </section>
+
+            <!-- Categories Management -->
+            <section class="categories-section">
+                <h2>📁 Kategooriad</h2>
+                <form id="categoryForm" class="category-form">
+                    <input type="text" id="categoryName" placeholder="Kategooria nimi *" required>
+                    <input type="color" id="categoryColor" value="#3498db">
+                    <button type="submit" class="btn btn-small">Lisa</button>
+                </form>
+                <div id="categoriesList" class="categories-list">
+                    <!-- Categories will be rendered here -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 ToDo Application | TAK24 | Andre Park</p>
+        </footer>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Muuda Ülesannet</h2>
+            <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <input type="text" id="editTaskTitle" placeholder="Pealkiri *" required>
+                </div>
+                <div class="form-group">
+                    <textarea id="editTaskDescription" placeholder="Kirjeldus" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTaskStatus">Staatus:</label>
+                        <select id="editTaskStatus">
+                            <option value="PENDING">Ootel</option>
+                            <option value="IN_PROGRESS">Pooleli</option>
+                            <option value="COMPLETED">Tehtud</option>
+                            <option value="CANCELLED">Tühistatud</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskPriority">Prioriteet:</label>
+                        <select id="editTaskPriority">
+                            <option value="LOW">Madal</option>
+                            <option value="MEDIUM">Keskmine</option>
+                            <option value="HIGH">Kõrge</option>
+                            <option value="CRITICAL">Kriitiline</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvesta</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
