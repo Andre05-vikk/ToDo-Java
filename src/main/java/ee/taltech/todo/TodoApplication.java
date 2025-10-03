@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 public class TodoApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(TodoApplication.class);
-    private static final int PORT = 8080;
+    private static final int PORT = 8081;
 
     public static void main(String[] args) {
         logger.info("Starting ToDo Application...");

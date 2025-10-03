@@ -271,8 +271,13 @@ public class TaskController implements HttpHandler {
     }
 
     private String extractId(String path) {
-        String[] parts = path.split("/");
-        return parts[parts.length - 1];
+        String[] parts = path.replaceAll("/$", "").split("/");
+        // If the path ends with an action (complete, start), get the second-to-last segment
+        String lastPart = parts[parts.length - 1];
+        if (lastPart.equals("complete") || lastPart.equals("start")) {
+            return parts[parts.length - 2];
+        }
+        return lastPart;
     }
 
     private String extractLastSegment(String path) {
