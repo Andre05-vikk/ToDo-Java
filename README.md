@@ -129,10 +129,18 @@ java -jar target/todo-app-1.0.0.jar
 
 Pärast käivitamist:
 
-1. **Ava brauser**: `http://localhost:8080`
-2. **REST API**: `http://localhost:8080/api/v1/tasks`
+1. **Web UI**: `http://localhost:8081` - Interaktiivne kasutajaliides
+2. **REST API**: `http://localhost:8081/api/v1/tasks` - API otspunktid
 
-Rakendus käivitub pordil **8080** (muudetav `application.properties` failis).
+Rakendus käivitub pordil **8081**.
+
+**Web UI funktsioonid:**
+- ✨ Lisa uusi ülesandeid vormiga
+- 🔍 Filtreeri ülesandeid staatuse, prioriteedi, tärniga või hilinenud ülesannete järgi
+- 📊 Vaata reaalajas statistikat
+- ✏️ Muuda ülesandeid modal aknas
+- 📁 Halda kategooriaid visuaalselt
+- ⭐ Märgi olulised ülesanded tärniga
 
 ## 📖 REST API Dokumentatsioon
 
@@ -165,7 +173,7 @@ Rakendus käivitub pordil **8080** (muudetav `application.properties` failis).
 
 **Loo uus ülesanne:**
 ```bash
-curl -X POST http://localhost:8080/api/v1/tasks \
+curl -X POST http://localhost:8081/api/v1/tasks \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Tee kodutöö",
@@ -177,7 +185,7 @@ curl -X POST http://localhost:8080/api/v1/tasks \
 
 **Hangi kõik ülesanded:**
 ```bash
-curl http://localhost:8080/api/v1/tasks
+curl http://localhost:8081/api/v1/tasks
 ```
 
 ## 🧪 Testimine
@@ -211,27 +219,26 @@ Logide konfiguratsioon: `src/main/resources/logback.xml`
 
 ## 🔧 Konfiguratsioon
 
-Muuda `src/main/resources/application.properties`:
+Serveri port on määratud `TodoApplication.java` failis:
 
-```properties
-# Server port
-api.port=8080
-
-# Database
-db.url=jdbc:h2:mem:tododb
-
-# Logging
-logging.level=INFO
-logging.file=logs/todo-app.log
+```java
+private static final int PORT = 8081;
 ```
+
+Kui soovid kasutada teist porti, muuda seda konstanti.
+
+**Logide konfiguratsioon**: `src/main/resources/logback.xml`
 
 ## 🐛 Probleemide Lahendamine
 
 ### Port on juba kasutusel
 
 ```bash
-# Muuda port application.properties failis
-api.port=9090
+# Muuda PORT konstanti TodoApplication.java failis
+private static final int PORT = 9090;
+
+# Ja uuenda ka frontend app.js failis
+const API_BASE = 'http://localhost:9090/api/v1';
 ```
 
 ### Java versioon on vale
