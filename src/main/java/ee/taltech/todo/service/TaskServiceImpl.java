@@ -8,6 +8,7 @@ import ee.taltech.todo.model.TaskPriority;
 import ee.taltech.todo.model.TaskStatus;
 import ee.taltech.todo.repository.CategoryRepository;
 import ee.taltech.todo.repository.TaskRepository;
+import ee.taltech.todo.validator.TaskValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ import java.util.Objects;
  * Design Patterns:
  * - Composition: Service has-a Repository
  * - Dependency Injection: Repositories injected via constructor
+ * - Strategy Pattern: Uses TaskValidator for validation
  *
  * @author ToDo Application
  * @version 1.0
@@ -43,6 +45,11 @@ public class TaskServiceImpl implements TaskService {
     private final CategoryRepository categoryRepository;
 
     /**
+     * Strategy Pattern: TaskValidator for validation logic.
+     */
+    private final TaskValidator taskValidator;
+
+    /**
      * Constructor with dependency injection.
      *
      * @param taskRepository     The task repository
@@ -51,6 +58,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskServiceImpl(TaskRepository taskRepository, CategoryRepository categoryRepository) {
         this.taskRepository = Objects.requireNonNull(taskRepository, "TaskRepository cannot be null");
         this.categoryRepository = Objects.requireNonNull(categoryRepository, "CategoryRepository cannot be null");
+        this.taskValidator = new TaskValidator();
         logger.info("TaskServiceImpl initialized");
     }
 
@@ -339,42 +347,12 @@ public class TaskServiceImpl implements TaskService {
 
     /**
      * Validates a task before saving or updating.
+     * Uses TaskValidator (Strategy Pattern) for validation.
      *
      * @param task The task to validate
      * @throws ValidationException if validation fails
      */
     private void validateTask(Task task) throws ValidationException {
-        logger.debug("Validating task");
-
-        if (task == null) {
-            logger.error("Task validation failed: task is null");
-            throw new ValidationException("Task cannot be null");
-        }
-
-        // Validate title
-        if (task.getTitle() == null || task.getTitle().trim().isEmpty()) {
-            logger.error("Task validation failed: title is null or empty");
-            throw new ValidationException("Task title cannot be null or empty");
-        }
-
-        if (task.getTitle().length() > 200) {
-            logger.error("Task validation failed: title too long ({} characters)", task.getTitle().length());
-            throw new ValidationException("Task title cannot exceed 200 characters");
-        }
-
-        // Validate description length if present
-        if (task.getDescription() != null && task.getDescription().length() > 1000) {
-            logger.error("Task validation failed: description too long ({} characters)",
-                    task.getDescription().length());
-            throw new ValidationException("Task description cannot exceed 1000 characters");
-        }
-
-        // Validate due date is not in the past (for new tasks)
-        if (task.getDueDate() != null && task.getDueDate().isBefore(LocalDateTime.now())) {
-            logger.warn("Task has due date in the past: {}", task.getDueDate());
-            // This is a warning, not an error - allow it but log it
-        }
-
-        logger.debug("Task validation successful");
+        taskValidator.validate(task);
     }
 }

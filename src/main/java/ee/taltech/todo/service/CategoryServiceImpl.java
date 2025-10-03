@@ -5,6 +5,7 @@ import ee.taltech.todo.exception.DuplicateEntityException;
 import ee.taltech.todo.exception.ValidationException;
 import ee.taltech.todo.model.Category;
 import ee.taltech.todo.repository.CategoryRepository;
+import ee.taltech.todo.validator.CategoryValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,10 @@ import java.util.Objects;
  *
  * Demonstrates OOP Composition: CategoryService HAS-A CategoryRepository.
  * This service layer contains all business logic for category management.
+ *
+ * Design Patterns:
+ * - Composition: Service has-a Repository
+ * - Strategy Pattern: Uses CategoryValidator for validation
  *
  * @author ToDo Application
  * @version 1.0
@@ -30,6 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     /**
+     * Strategy Pattern: CategoryValidator for validation logic.
+     */
+    private final CategoryValidator categoryValidator;
+
+    /**
      * Constructor with dependency injection.
      *
      * @param categoryRepository The category repository
@@ -37,6 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = Objects.requireNonNull(categoryRepository,
                 "CategoryRepository cannot be null");
+        this.categoryValidator = new CategoryValidator();
         logger.info("CategoryServiceImpl initialized");
     }
 
@@ -171,43 +182,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * Validates a category before saving or updating.
+     * Uses CategoryValidator (Strategy Pattern) for validation.
      *
      * @param category The category to validate
      * @throws ValidationException if validation fails
      */
     private void validateCategory(Category category) throws ValidationException {
-        logger.debug("Validating category");
-
-        if (category == null) {
-            logger.error("Category validation failed: category is null");
-            throw new ValidationException("Category cannot be null");
-        }
-
-        // Validate name
-        if (category.getName() == null || category.getName().trim().isEmpty()) {
-            logger.error("Category validation failed: name is null or empty");
-            throw new ValidationException("Category name cannot be null or empty");
-        }
-
-        if (category.getName().length() > 100) {
-            logger.error("Category validation failed: name too long ({} characters)",
-                    category.getName().length());
-            throw new ValidationException("Category name cannot exceed 100 characters");
-        }
-
-        // Validate description length if present
-        if (category.getDescription() != null && category.getDescription().length() > 500) {
-            logger.error("Category validation failed: description too long ({} characters)",
-                    category.getDescription().length());
-            throw new ValidationException("Category description cannot exceed 500 characters");
-        }
-
-        // Validate color format if present (basic hex color validation)
-        if (category.getColor() != null && !category.getColor().matches("^#[0-9A-Fa-f]{6}$")) {
-            logger.error("Category validation failed: invalid color format: {}", category.getColor());
-            throw new ValidationException("Category color must be in hex format (#RRGGBB)");
-        }
-
-        logger.debug("Category validation successful");
+        categoryValidator.validate(category);
     }
 }
