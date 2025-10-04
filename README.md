@@ -32,7 +32,6 @@ Rakendus demonstreerib järgmisi OOP põhimõtteid ja disainimustreid:
 3. **Template Method Pattern**: BaseValidator validation flow
 4. **DTO Pattern**: Data Transfer Objects API kihis
 5. **Dependency Injection**: Constructor-based injection
-6. **Singleton Pattern**: ConfigurationManager
 
 ### Arhitektuurikihid
 ```
@@ -49,11 +48,13 @@ Domain Model Layer (Entities)
 
 - **Java 17+**
 - **Maven** - Dependency management
-- **H2 Database** - In-memory andmebaas
+- **ConcurrentHashMap** - Thread-safe in-memory storage
 - **SLF4J + Logback** - Structured logging
 - **JUnit 5 + Mockito** - Testing
+- **Gson** - JSON serialization
 - **Vanilla JavaScript** - Frontend
 - **HTML5 + CSS3** - UI
+- **com.sun.net.httpserver** - Built-in HTTP server
 
 ## 📦 Projekti Struktuur
 
@@ -66,26 +67,27 @@ ToDo-Java/
 │   │   │   ├── repository/     # Data access layer
 │   │   │   ├── service/        # Business logic
 │   │   │   ├── controller/     # REST API endpoints
-│   │   │   ├── dto/           # Data transfer objects
-│   │   │   ├── validator/     # Input validation
-│   │   │   ├── exception/     # Custom exceptions
-│   │   │   ├── config/        # Configuration
-│   │   │   ├── util/          # Utilities
+│   │   │   ├── dto/            # Data transfer objects
+│   │   │   ├── validator/      # Input validation
+│   │   │   ├── exception/      # Custom exceptions
+│   │   │   ├── util/           # Utilities
 │   │   │   └── TodoApplication.java
 │   │   └── resources/
-│   │       ├── static/        # Frontend (HTML, CSS, JS)
-│   │       ├── application.properties
+│   │       ├── static/         # Frontend (HTML, CSS, JS)
 │   │       └── logback.xml
 │   └── test/
 │       └── java/ee/taltech/todo/
-│           ├── model/
-│           ├── service/
-│           ├── repository/
-│           ├── validator/
-│           └── integration/
+│           ├── model/          # Entity tests
+│           ├── service/        # Service layer tests
+│           ├── repository/     # Repository tests
+│           ├── validator/      # Validation tests
+│           ├── dto/            # DTO tests
+│           ├── exception/      # Exception tests
+│           └── util/           # Utility tests
 ├── pom.xml
 ├── README.md
-└── PROJECT_AUDIT.md
+├── PROJECT_AUDIT.md
+└── JAVA_BEST_PRACTICES.md
 ```
 
 ## 🚀 Paigaldamine ja Käivitamine
@@ -96,14 +98,8 @@ ToDo-Java/
 - Maven 3.6+
 - Veebilehitseja (Chrome, Firefox, Safari, Edge)
 
-### 1. Projekti Kloonimine
 
-```bash
-git clone https://github.com/Andre05-vikk/ToDo-Java.git
-cd ToDo-Java
-```
-
-### 2. Projekti Ehitamine
+### 1. Projekti Ehitamine
 
 ```bash
 # Kompileeri ja ehita JAR fail
@@ -113,7 +109,7 @@ mvn clean package
 mvn clean package -DskipTests
 ```
 
-### 3. Rakenduse Käivitamine
+### 2. Rakenduse Käivitamine
 
 **Variant A: Maven'iga**
 ```bash
@@ -125,7 +121,7 @@ mvn exec:java -Dexec.mainClass="ee.taltech.todo.TodoApplication"
 java -jar target/todo-app-1.0.0.jar
 ```
 
-### 4. Rakenduse Kasutamine
+### 3. Rakenduse Kasutamine
 
 Pärast käivitamist:
 
@@ -190,24 +186,98 @@ curl http://localhost:8081/api/v1/tasks
 
 ## 🧪 Testimine
 
-### Kõik testid
+Rakendus sisaldab põhjalikku automaattestide komplekti rakenduse töö ja töökindluse kontrollimiseks.
+
+### Kõigi testide käivitamine
 
 ```bash
+# Käivita kõik testid
 mvn test
+
+# Käivita testid ja genereeri coverage raport
+mvn clean test jacoco:report
+
+# Vaata coverage raportit brauseris
+open target/site/jacoco/index.html
 ```
 
-### Testide katvus (JaCoCo)
+### Testide statistika
+
+- **Testide arv**: 176
+- **Test pass rate**: 100% (kõik testid läbivad)
+- **Koodikattuvus**: 44%
+
+### Testide jaotus pakettide kaupa
+
+| Pakett | Testide arv | Coverage |
+|--------|-------------|----------|
+| **Exception** | 20 | 100% |
+| **Service** | 46 | 74% |
+| **Validator** | 26 | 87% |
+| **Util** | 7 | 88% |
+| **DTO** | 6 | 55% |
+| **Repository** | 28 | 51% |
+| **Model** | 43 | 42% |
+
+### Testi tüübid
+
+**1. Entity testid** (Model layer)
+- `TaskTest.java` - Task entity funktsioonid ja äriloogika
+- `CategoryTest.java` - Category entity funktsioonid
+
+**2. Repository testid** (Data access layer)
+- `InMemoryTaskRepositoryTest.java` - Andmete salvestamine, pärimine, thread safety
+- `InMemoryCategoryRepositoryTest.java` - Kategooriate haldamine, thread safety
+
+**3. Service testid** (Business logic)
+- `TaskServiceImplTest.java` - Ülesannete äriloogika, Mockito-põhised testid
+- `CategoryServiceImplTest.java` - Kategooriate äriloogika, validatsioon
+
+**4. Validator testid** (Input validation)
+- `TaskValidatorTest.java` - Sisendi valideerimisreeglid
+- `CategoryValidatorTest.java` - Kategooriate validatsioon, hex värvid
+
+**5. DTO testid** (Data Transfer Objects)
+- `TaskDTOTest.java` - Entity → DTO mapping
+- `CategoryDTOTest.java` - Category mapping
+
+**6. Exception testid** (Error handling)
+- `TaskNotFoundExceptionTest.java`
+- `CategoryNotFoundExceptionTest.java`
+- `DuplicateEntityExceptionTest.java`
+- `ValidationExceptionTest.java`
+
+**7. Utility testid**
+- `JsonUtilTest.java` - JSON serialization/deserialization, LocalDateTime handling
+
+### Coverage raport
+
+Coverage raport genereeritakse JaCoCo abil ja sisaldab:
+- Line coverage (rea katvus)
+- Branch coverage (hargnemiste katvus)
+- Method coverage (meetodite katvus)
+- Class coverage (klasside katvus)
 
 ```bash
-mvn jacoco:report
+# Genereeri ja ava raport
+mvn jacoco:report && open target/site/jacoco/index.html
 ```
 
-Ava raport: `target/site/jacoco/index.html`
+### Käivita konkreetseid teste
 
-### Testide jaotus
+```bash
+# Ainult model testid
+mvn test -Dtest="ee.taltech.todo.model.*Test"
 
-- **Unit testid**: Model, Service, Repository, Validator kihid
-- **Integration testid**: Täielik rakenduse töövoog
+# Ainult service testid
+mvn test -Dtest="ee.taltech.todo.service.*Test"
+
+# Konkreetne test klass
+mvn test -Dtest="TaskServiceImplTest"
+
+# Konkreetne test meetod
+mvn test -Dtest="TaskServiceImplTest#testCreateTask_WithValidTask_ShouldSaveTask"
+```
 
 ## 📊 Logid
 
@@ -225,7 +295,10 @@ Serveri port on määratud `TodoApplication.java` failis:
 private static final int PORT = 8081;
 ```
 
-Kui soovid kasutada teist porti, muuda seda konstanti.
+Kui soovid kasutada teist porti, muuda seda konstanti ja uuenda ka `app.js` failis API_BASE URL.
+
+**Andmete salvestamine**: Rakendus kasutab in-memory ConcurrentHashMap andmete salvestamiseks.
+Andmed kustutatakse rakenduse taaskäivitamisel. See on mõeldud demonstreerimiseks ja testimiseks.
 
 **Logide konfiguratsioon**: `src/main/resources/logback.xml`
 
@@ -267,11 +340,7 @@ Põhjalik disaini ja analüüsi dokument: **PROJECT_AUDIT.md**
 
 ## 👨‍💻 Autor
 
-Andre Park - TAK24
-
-## 📄 Litsents
-
-See projekt on loodud õppeotstarbel.
+Andre Park 
 
 ## 🙏 Tänu
 
